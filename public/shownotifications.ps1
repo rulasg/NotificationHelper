@@ -8,8 +8,8 @@ function Show-Notifications {
         [Parameter()][switch]$Force
     )
 
-    $list = Get-Notifications -Id $Id -Url $Url -Title $Title -Force:$Force
+    $list = Get-Notification -Id $Id -Url $Url -Title $Title -Force:$Force
 
-    $list.Values | Select-Object Id,type,Reason,Title,RepoName,RepoOwner,Updated | ft -AutoSize
+    $list.Values | Select-Object Id,type,Reason,Title,RepoName,RepoOwner,Updated
 
 } Export-ModuleMember -Function Show-Notifications -Alias sn

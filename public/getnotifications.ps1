@@ -1,5 +1,5 @@
 
-function Get-Notifications {
+function Get-Notification {
     [CmdletBinding()]
     [alias('gn')]
     param(
@@ -45,7 +45,7 @@ function Get-Notifications {
     "Returning all notifications." | Write-MyDebug -Section "getNotifications"
     return $ret
 
-} Export-ModuleMember -Function Get-Notifications -Alias gn
+} Export-ModuleMember -Function Get-Notification -Alias gn
 
 function Invoke-GetNotifications {
     [cmdletbinding()]

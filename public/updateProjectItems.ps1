@@ -13,7 +13,7 @@ function Get-NotificationsProjectItemValueEditParameters {
     begin {
 
         # Retrive notifications
-        $notis = Get-Notifications -Force:$Force
+        $notis = Get-Notification -Force:$Force
         if(-not $notis){
             "No notifications found."| Write-MyDebug -Section "Update-NotificationsProjectItema"
             $noRun = $true
