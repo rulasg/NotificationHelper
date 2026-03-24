@@ -45,7 +45,7 @@ function Get-NotificationsProjectItemValueEditParameters {
         }
 
         # Find notification by url
-        $noti = $notis.values | Where-Object { $_.Url -eq $url }
+        $noti = $notis | Where-Object { $_.Url -eq $url }
         if(! $noti){
             "No notification found for item with url '$url'" | Write-Debug -Section "Update-NotificationsProjectItema"
             return
