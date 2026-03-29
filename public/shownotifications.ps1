@@ -2,7 +2,7 @@ function Show-Notifications {
     [CmdletBinding()]
     [alias('sn')]
     param(
-        [Parameter(Position = 0)][string]$Id,
+        [Parameter(ValueFromPipelineByPropertyName,ValueFromPipeline, Position = 0)][string]$Id,
         [Parameter()][string]$Url,
         [Parameter()][string]$Title,
         [Parameter()][ValidateSet("Issue","Discussion","PullRequest","Release")][string]$Type,
@@ -17,11 +17,14 @@ function Show-Notifications {
             "manual"
         )][string]$Reason,
 
+        [Parameter()][string[]]$Sort,
+
         [Parameter()][switch]$IncludeUnRead,
         [Parameter()][string]$RepoName,
         [Parameter()][string]$RepoOwner,
         [Parameter()][switch]$Force,
-        [Parameter()][string[]]$Sort
+        [Parameter()][switch]$PassThru
+
     )
 
     # Default is show ownly the unread
@@ -30,6 +33,13 @@ function Show-Notifications {
 
     "Listing [$($list.Length)] notifications." | Write-MyDebug -Section "Show-Notifications"
 
-    $list | Select-Object Id, type, Reason, UnRead, Title, RepoName, RepoOwner, Updated | Sort-Object $Sort | Format-Table -AutoSize
+    
+    if($PassThru){
+        return $list
+    }
+
+    $list = $list | Sort-Object $sort
+    
+    $list | Select-Object Id, type, Reason, UnRead, Title, RepoName, RepoOwner, Updated | Format-Table -AutoSize
 
 } Export-ModuleMember -Function Show-Notifications -Alias sn
