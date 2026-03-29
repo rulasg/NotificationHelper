@@ -5,7 +5,7 @@ function Resolve-Notification {
     [CmdletBinding()]
     [alias('rn')]
     param (
-        [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)][string]$Id,
+        [Parameter(ValueFromPipelineByPropertyName, Position = 0)][string]$Id,
         [Parameter(Position = 1)][ValidateSet("Done","Read")][string]$Action = "Read"
     )
 
