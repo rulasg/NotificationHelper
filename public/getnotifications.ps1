@@ -54,6 +54,33 @@ function Get-Notification {
 
 } Export-ModuleMember -Function Get-Notification -Alias gn
 
+function Get-NotificationByUrl {
+    [CmdletBinding()]
+    [alias('gn')]
+    param(
+        [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)][string]$Url,
+        [Parameter()][switch]$Force
+    )
+
+    if([string]::IsNullOrEmpty($Url)){
+        "Url parameter is required." | Write-MyDebug -Section "Get-NotificationByUrl"
+        return
+    }
+
+    $params =@{
+        Url = $Url
+        Force = $Force
+    }
+
+    # retreive
+    $ns = getNotification
+    $n = $ns | Select-Notification @params
+
+    $ret =[pscustomobject] $n
+    return $ret
+
+} Export-ModuleMember -Function Get-NotificationByUrl
+
 function resolveNotification{
     [CmdletBinding()]
     param(
