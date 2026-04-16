@@ -81,6 +81,17 @@ function Get-NotificationByUrl {
 
 } Export-ModuleMember -Function Get-NotificationByUrl
 
+function Update-Notifications{
+    [CmdletBinding()]
+    [alias('un')]
+    param()
+
+    $result = Get-Notification -Force
+
+    "Updated notifications. Total count: $($result.Count)" | Write-MyHost
+
+} Export-ModuleMember -Function Update-Notifications -Alias un
+
 function getNotification {
     [CmdletBinding()]
     param(
