@@ -81,49 +81,6 @@ function Get-NotificationByUrl {
 
 } Export-ModuleMember -Function Get-NotificationByUrl
 
-function resolveNotification{
-    [CmdletBinding()]
-    param(
-        [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)][string]$Id,
-        [Parameter(Mandatory)][ValidateSet("Done","Read")][string]$Action
-    )
-
-    begin {
-        $me = Get-MyHandle
-        $cacheKey = "notifications-$me"
-    }
-
-    process {
-        $db = Get-DatabaseKey -Key $cacheKey -asHashtable
-
-        # Check if the db exists
-        if(-not $db){
-            "No db found for key [$cacheKey]" | Write-MyDebug -Section "resolveNotifications"
-            return
-        }
-
-        $noti = $db.$Id
-
-        if(-not $noti){
-            "No notification found with id [$Id] in db" | Write-MyDebug -Section "resolveNotifications"
-            return
-        }
-
-        if($Action -eq "Read"){
-            "Marking as read notification with id [$Id] in db..." | Write-MyDebug -Section "resolveNotifications"
-            $db.$Id.UnRead = $false
-        }
-
-        if($Action -eq "Done"){
-            "Removing notification with id [$Id] from db..." | Write-MyDebug -Section "resolveNotifications"
-            $db.Remove($Id) | Out-Null
-        }
-        
-        # Saving the db
-        Save-DatabaseKey -Key $cacheKey -Value $db
-    }
-}
-
 function getNotification {
     [CmdletBinding()]
     param(
@@ -203,7 +160,16 @@ function Invoke-GetNotifications {
 function getContentUrlFromApiUrl($apiurl){
     if($apiurl -match "https://api.github.com/repos/(.+)/(.+)/(\d+)"){
 
-        $ret =  "https://github.com/$($matches[1])/$($matches[2])/$($matches[3])"
+        $owner = $matches[1]
+        $type = $matches[2]
+        $number = $matches[3]
+
+        switch ($type){
+            "pulls" { $type = "pull" }
+            default { $type = $type }
+        }
+
+        $ret =  "https://github.com/$owner/$type/$number"
 
         return $ret
     }

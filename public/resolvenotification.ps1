@@ -39,6 +39,49 @@ function Resolve-Notification {
     }
 } Export-ModuleMember -Function Resolve-Notification -Alias rn
 
+function resolveNotification{
+    [CmdletBinding()]
+    param(
+        [Parameter(ValueFromPipeline, ValueFromPipelineByPropertyName, Position = 0)][string]$Id,
+        [Parameter(Mandatory)][ValidateSet("Done","Read")][string]$Action
+    )
+
+    begin {
+        $me = Get-MyHandle
+        $cacheKey = "notifications-$me"
+    }
+
+    process {
+        $db = Get-DatabaseKey -Key $cacheKey -asHashtable
+
+        # Check if the db exists
+        if(-not $db){
+            "No db found for key [$cacheKey]" | Write-MyDebug -Section "resolveNotifications"
+            return
+        }
+
+        $noti = $db.$Id
+
+        if(-not $noti){
+            "No notification found with id [$Id] in db" | Write-MyDebug -Section "resolveNotifications"
+            return
+        }
+
+        if($Action -eq "Read"){
+            "Marking as read notification with id [$Id] in db..." | Write-MyDebug -Section "resolveNotifications"
+            $db.$Id.UnRead = $false
+        }
+
+        if($Action -eq "Done"){
+            "Removing notification with id [$Id] from db..." | Write-MyDebug -Section "resolveNotifications"
+            $db.Remove($Id) | Out-Null
+        }
+        
+        # Saving the db
+        Save-DatabaseKey -Key $cacheKey -Value $db
+    }
+}
+
 function Invoke-ResolveNotification {
     [CmdletBinding()]
     param(
