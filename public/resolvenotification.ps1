@@ -1,9 +1,32 @@
 
 Set-MyInvokeCommandAlias -Alias ResolveNotification -Command "Invoke-ResolveNotification -Action {action} -Url {url}"
 
-function Resolve-Notification {
+function Read-Notification {
     [CmdletBinding()]
     [alias('rn')]
+    param(
+        [Parameter(ValueFromPipelineByPropertyName, Position = 0)][string]$Id
+    )
+
+    process {
+        Resolve-Notification -Id $Id -Action "Read"
+    }
+} Export-ModuleMember -Function Read-Notification -Alias rn
+
+function Remove-Notification {
+    [CmdletBinding()]
+    [alias('dn')]
+    param(
+        [Parameter(ValueFromPipelineByPropertyName, Position = 0)][string]$Id
+    )
+
+    process {
+        Resolve-Notification -Id $Id -Action "Done"
+    }
+} Export-ModuleMember -Function Remove-Notification -Alias dn
+
+function Resolve-Notification {
+    [CmdletBinding(SupportsShouldProcess)]
     param (
         [Parameter(ValueFromPipelineByPropertyName, Position = 0)][string]$Id,
         [Parameter(Position = 1)][ValidateSet("Done","Read")][string]$Action = "Read"
@@ -27,17 +50,23 @@ function Resolve-Notification {
         
         $url = $Notification.threadUrl
 
-        $response = Invoke-MyCommand -Command ResolveNotification -Parameters @{ action = $Action; url = $url }
-        
-        if ($response) {
-            resolveNotification -Id $Id -Action $Action
+        if ($PSCmdlet.ShouldProcess($id, "ResolveNotification")) {
+            # Call api
+            $response = Invoke-MyCommand -Command ResolveNotification -Parameters @{ action = $Action; url = $url }
+            if ($response) {
+                # Remove from cache
+                resolveNotification -Id $Id -Action $Action
+                return $true
+            }
+        } else {
             return $true
         }
+        
         
         "Something went wrong while resolving notification with id [$Id]. $response" | Write-MyDebug -Section "Resolve-Notification"
         return $false
     }
-} Export-ModuleMember -Function Resolve-Notification -Alias rn
+}
 
 function resolveNotification{
     [CmdletBinding()]
