@@ -1,56 +1,66 @@
 
+class ValidReasons : System.Management.Automation.IValidateSetValuesGenerator {
+    [String[]] GetValidValues() {
+        $g = Get-Notification
+        $ret = $g | Select-Object -ExpandProperty Reason -Unique
+        return $ret
+    }
+}
+
+class ValidType : System.Management.Automation.IValidateSetValuesGenerator {
+    [String[]] GetValidValues() {
+        $g = Get-Notification
+        $ret = $g | Select-Object -ExpandProperty type -Unique
+        return $ret
+    }
+}
+
 Set-MyInvokeCommandAlias -Alias GetNotifications -Command "Invoke-GetNotifications"
 
 function Get-Notification {
     [CmdletBinding()]
     [alias('gn')]
     param(
-        [Parameter(Position=0)][string]$Id,
+        [Parameter(Position=0,ValueFromPipelineByPropertyName)][string]$Id,
         [Parameter()][string]$Url,
         [Parameter()][string]$Title,
-        [Parameter()][ValidateSet("Issue","Discussion","PullRequest","Release")][string]$Type,
-
-        [Parameter()][ValidateSet(
-            "assign",
-            "subscribed",
-            "comment",
-            "author",
-            "team_mention",
-            "mention",
-            "state_change",
-            "manual"
-        )][string]$Reason,
+        [Parameter()][ValidateSet([ValidType])][string]$Type,
+        [Parameter()][ValidateSet([ValidReasons])][string]$Reason,
 
         [Parameter()][switch]$IncludeUnRead,
         [Parameter()][string]$RepoName,
         [Parameter()][string]$RepoOwner,
         [Parameter()][switch]$Force
     )
-    $params =@{
-        Url = $Url
-        Title = $Title
-        Type = $Type
-        Reason = $Reason
-        IncludeUnRead = $IncludeUnRead
-        RepoName = $RepoName
-        RepoOwner = $RepoOwner
-        Force = $Force
-    }
 
-    # retreive
-    if(-Not [string]::IsNullOrEmpty($Id)){
-        $ns = getNotification -Id $Id
-    } else {
-        $ns = getNotification
-        $ns = $ns | Select-Notification @params
-    }
+    process {
 
-    $ret = @()
-    foreach($n in $ns){
-        $ret += [pscustomobject] $n
+        $params =@{
+            Url = $Url
+            Title = $Title
+            Type = $Type
+            Reason = $Reason
+            IncludeUnRead = $IncludeUnRead
+            RepoName = $RepoName
+            RepoOwner = $RepoOwner
+            Force = $Force
+        }
+        
+        # retreive
+        if(-Not [string]::IsNullOrEmpty($Id)){
+            $ns = getNotification -Id $Id
+        } else {
+            $ns = getNotification
+            $ns = $ns | Select-Notification @params
+        }
+        
+        $ret = @()
+        foreach($n in $ns){
+            $ret += [pscustomobject] $n
+        }
+        
+        return $ret
     }
-
-    return $ret
 
 } Export-ModuleMember -Function Get-Notification -Alias gn
 
