@@ -25,9 +25,9 @@ function Show-Notifications {
     [CmdletBinding()]
     [alias('sn')]
     param(
-        [Parameter(ValueFromPipelineByPropertyName,ValueFromPipeline, Position = 0)][string]$Id,
+        [Parameter()][string]$Id,
         [Parameter()][string]$Url,
-        [Parameter()][string]$Title,
+        [Parameter(Position=0)][string]$Title,
         [Parameter()][ValidateSet([ValidType])][string]$Type,
         [Parameter()][ValidateSet([ValidReasons])][string]$Reason,
 
