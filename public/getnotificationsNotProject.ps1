@@ -5,7 +5,6 @@ function Get-NotificationsNotInProject{
         #owner
         [Parameter()][string]$Owner,
         [Parameter()][string]$ProjectNumber,
-        # reponmae
         [Parameter()][string]$RepoName,
         [Parameter()][string]$RepoOwner,
         [Parameter()][switch]$Force
@@ -44,14 +43,21 @@ function Show-NotificationsNotInProject{
         #owner
         [Parameter()][string]$Owner,
         [Parameter()][string]$ProjectNumber,
-        # reponmae
         [Parameter()][string]$RepoName,
         [Parameter()][string]$RepoOwner,
         [Parameter()][switch]$Force,
         [Parameter()][switch]$PassThru
     )
 
-    $n = Get-NotificationsNotInProject @psboundparameters
+    $params = @{
+        Owner = $Owner
+        ProjectNumber = $ProjectNumber
+        RepoName = $RepoName
+        RepoOwner = $RepoOwner
+        Force = $Force
+    }
+
+    $n = Get-NotificationsNotInProject @params
 
     if ($PassThru) {
         return $n
