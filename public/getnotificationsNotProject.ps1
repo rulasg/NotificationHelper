@@ -36,3 +36,26 @@ function Get-NotificationsNotInProject{
     return $ret
 
 } export-ModuleMember -Function Get-NotificationsNotInProject -Alias gnnip
+
+function Show-NotificationsNotInProject{
+    [CmdletBinding()]
+    [Alias('snnip')]
+    param(
+        #owner
+        [Parameter()][string]$Owner,
+        [Parameter()][string]$ProjectNumber,
+        # reponmae
+        [Parameter()][string]$RepoName,
+        [Parameter()][string]$RepoOwner,
+        [Parameter()][switch]$Force,
+        [Parameter()][switch]$PassThru
+    )
+
+    $n = Get-NotificationsNotInProject @psboundparameters
+
+    if ($PassThru) {
+        return $n
+    }
+
+    $n | Select-Object id,Title,RepoName
+} Export-ModuleMember -Function Show-NotificationsNotInProject -Alias snnip
