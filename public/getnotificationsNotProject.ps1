@@ -15,22 +15,20 @@ function Get-NotificationsNotInProject{
     # Filter by type. Get Just Issues and Pull Requests
     $n = $n | where-object { $_.Type -eq 'Issue' -or $_.Type -eq 'PullRequest' }
 
+    # Filter by RepoName
     if(-Not [string]::IsNullOrEmpty($RepoName)){
         $n = $n | where-object { $_.RepoName -eq $RepoName }
     }
 
+    # Filter by RepoOwner
     if(-Not [string]::IsNullOrEmpty($RepoOwner)){
         $n = $n | where-object { $_.RepoOwner -eq $RepoOwner }
     }
 
-    $ret = @()
-
-    $n | ForEach-Object{ 
-        $i = gpibu $_.Url -Owner $Owner -ProjectNumber $ProjectNumber
-         if( $null -eq $i){
-            $ret += $_
-        }
-    }
+    # With $n that contains $_.url , Find-NotInProject
+    # Will return all the items in $n with a url that 
+    # is not part of the active project
+    $ret = $n | ProjectHelper\Find-NotInProject
 
     return $ret
 
