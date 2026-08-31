@@ -21,7 +21,23 @@ function Show-NotificationIssue {
             # Get content information and later display
             # To allow gh to manage the terminal we can not assign the output of the command.
 
-            gh $($Notification.type.ToLower()) view $Notification.Url
+            # Transformation
+            switch ($Notification.type) {
+                "Issue" { $type = "issue" }
+                "Discussion" { $type = "discussion" }
+                "PullRequest" { $type = "pr" }
+                "AgentSessionThread" { $type = $null }
+                Default { $type = $null }
+            }
+
+            # Error if type can not be shown
+            if (-not $type) {
+                "Can't show this notification type [ $($Notification.type) ] for id [$Id]" | Write-MyError
+                return
+            }
+
+            #Show the notification using the GitHub CLI
+            Invoke-NotificationsShow $type $Notification.Url
 
         }
         else{
@@ -29,3 +45,14 @@ function Show-NotificationIssue {
         }
     }
 } Export-ModuleMember -Function Show-NotificationIssue -Alias 'vn','View-Notification'
+
+function Invoke-NotificationsShow {
+    [CmdletBinding()]
+    param(
+        $Type,$Url
+    )
+
+     gh $Type view $Url
+
+}
+
